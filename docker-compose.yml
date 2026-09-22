@@ -1,0 +1,15 @@
+# services:
+#   db:
+#     image: postgres:16-alpine
+#     environment:
+#       POSTGRES_DB: assignment
+#       POSTGRES_USER: assignment
+#       POSTGRES_PASSWORD: assignment
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#       - ./docker/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+# volumes:
+#   postgres_data:

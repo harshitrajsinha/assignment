@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+asyncpg
+bcrypt
+pydantic-settings
+email-validator
+python-dotenv
+psycopg[binary]
