@@ -1,30 +1,30 @@
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from models import login
+from models.login import LoginResponse, LoginRequest
 
 from sqlmodel import select
 from sqlmodel import Session
 
-from services.database import User, get_session
+from services.database import get_session
+from models.users import User
 
 router = APIRouter(prefix="/auth")
 
 
-@router.post("/login", response_model=login.LoginResponse)
-def login(
-    payload: login.LoginRequest, session: Session = Depends(get_session)
-) -> login.LoginResponse:
+@router.post("/login", response_model=LoginResponse)
+def login(payload: LoginRequest, session: Session = Depends(get_session)) -> LoginResponse:
+
     """
     Functionality to authenticate user
     """
     
-    result = session.execute(
+    result = session.exec(
         select(User).where(User.email == payload.email.lower())
     )
-    user = result.scalar_one_or_none()
+    user = result.one_or_none()
 
-    # using bcrypt to has payload password and match with password in database
+    # using bcrypt to hash payload password and match with password in database
     password_matches = user is not None and bcrypt.checkpw(
         payload.password.encode("utf-8"), user.password_hash.encode("utf-8")
     )
@@ -35,4 +35,5 @@ def login(
             detail="Invalid email or password",
         )
 
-    return login.LoginResponse(authenticated=True)
+    response = LoginResponse(authenticated=True)
+    return response
