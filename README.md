@@ -58,15 +58,8 @@ to compare it safely with the submitted password.
 
 ## Seed users
 
-`scripts.seed_users` creates missing users and makes existing seed users active
-with their configured roles. It does not overwrite an existing user's password.
-Set a development-only password first, then run the module from the repository
-root:
-
-```bash
-export SEED_USER_PASSWORD="choose-a-strong-development-password"
-python -m scripts.seed_users
-```
+`scripts.seed_users` creates dummy users and makes existing seed users active
+with their configured roles.
 
 | Email | Role |
 | --- | --- |
