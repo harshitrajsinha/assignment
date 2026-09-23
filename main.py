@@ -18,6 +18,7 @@ IS_PROD=os.getenv("ENVIRONMENT") == "production"
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     create_tables()
+    print("Database tables created and seed data is also loaded")
     yield
     close_db()
 
@@ -31,9 +32,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Middleware to capture latency. Start time before processing and then record before sending response
+
 @app.middleware("http")
 async def capture_latency(request: Request, call_next) -> Response:
+    """
+    Middleware to capture latency. Start time before processing and then record before sending response
+    """
     started_at = perf_counter()
     try:
         response = await call_next(request)
@@ -45,10 +49,10 @@ async def capture_latency(request: Request, call_next) -> Response:
     return response
 
 
-app.include_router(health.router, prefix="/api/v1")
-app.include_router(metrics.router, prefix="/api/v1")
-app.include_router(chat.router, prefix="/api/v1")
-app.include_router(auth.router, prefix="/api/v1")
+app.include_router(health.router, prefix="/api/v1", tags=["health"])
+app.include_router(metrics.router, prefix="/api/v1", tags=["metrics"])
+app.include_router(chat.router, prefix="/api/v1",  tags=["chat"])
+app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

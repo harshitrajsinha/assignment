@@ -18,7 +18,7 @@ def login(payload: LoginRequest, session: Session = Depends(get_session)) -> Log
     """
     Functionality to authenticate user
     """
-    
+    # get user from database
     result = session.exec(
         select(User).where(User.email == payload.email.lower())
     )
