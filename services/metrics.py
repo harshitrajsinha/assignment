@@ -24,6 +24,7 @@ class LatencyStore:
             if status_code >= 400:
                 metrics["errors"] += 1
 
+    # Returns the recorded metrics
     def snapshot(self) -> dict[str, dict[str, int | float]]:
         with self._lock:
             return {

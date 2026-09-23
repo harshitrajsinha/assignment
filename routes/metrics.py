@@ -7,4 +7,7 @@ router = APIRouter()
 
 @router.get("/metrics")
 async def metrics() -> dict[str, dict[str, dict[str, int | float]]]:
+    """
+    Returns the recorded metrics
+    """
     return {"routes": latency_store.snapshot()}
