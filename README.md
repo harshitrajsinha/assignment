@@ -66,3 +66,10 @@ with their configured roles.
 | `admin@eliciusenergy.com` | `admin` |
 | `harshit@gmail.com` | `admin` |
 | `newuser@gmail.com` | `user` |
+
+
+<hr>
+
+### Run application via docker compose
+
+```docker compose --build --env-file .env up```

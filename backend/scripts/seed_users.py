@@ -96,6 +96,7 @@ def seed_users(session) -> None:
         ),
     ]
 
+    # first checking if data exists and only then adding to table, saves from re-seeding in case of server restart due to crash or hot reload (development)
     for user in users:
         existing_user = session.exec(
             select(User).where(User.email == user.email)

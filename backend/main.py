@@ -12,6 +12,7 @@ from services.metrics import latency_store
 
 load_dotenv()
 
+# for environment based configuration
 IS_PROD=os.getenv("ENVIRONMENT") == "production"
 
 
@@ -24,8 +25,8 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="QnA API",
-    description="QnA API",
+    title="QnA Service",
+    description="QnA Service",
     docs_url=None if IS_PROD else "/docs",
     redoc_url=None if IS_PROD else "/redoc",
     openapi_url=None if IS_PROD else "/openapi.json",
@@ -55,4 +56,4 @@ app.include_router(chat.router, prefix="/api/v1",  tags=["chat"])
 app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False if IS_PROD else True, workers=2 if IS_PROD else 1)
