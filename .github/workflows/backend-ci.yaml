@@ -138,7 +138,7 @@ jobs:
         uses: docker/build-push-action@v7.2.0
         with:
           context: .
-          file: Dockerfile
+          file: backend/Dockerfile
           push: false
           load: true
           tags: ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
