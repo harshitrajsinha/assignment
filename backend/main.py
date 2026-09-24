@@ -25,8 +25,8 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="QnA API",
-    description="QnA API",
+    title="QnA Service",
+    description="QnA Service",
     docs_url=None if IS_PROD else "/docs",
     redoc_url=None if IS_PROD else "/redoc",
     openapi_url=None if IS_PROD else "/openapi.json",
