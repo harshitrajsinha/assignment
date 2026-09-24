@@ -1,0 +1,158 @@
+name: Backend CI pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+      - 'hotfix/**'
+      - 'bugfix/**'
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yaml' # to be removed in production
+  pull_request:
+    branches:
+      - main
+      - test
+      - dev
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yaml' # to be removed in production
+
+jobs:
+  ############# Job: Security scan #################
+  security-check:
+    name: Backend Security Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: read
+      security-events: write
+
+    defaults:
+      run:
+        working-directory: backend
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # secret scan
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_NOTIFY_USER_LIST: '@harshitrajsinha'
+
+      # Dependency scan
+      - name: Scan dependencies
+        run: |
+          pip install pip-audit
+          pip-audit
+  
+  ############# Job: Unit Test #################
+  unit-test:
+    name: Backend Unit Test
+    needs: [security-scan]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
+        continue-on-error: true
+
+  ############# Job: Docker image build, scan and push #################
+  image-build:
+    name: Backend Image Build
+    runs-on: ubuntu-latest
+    needs: [security-scan]
+
+    permissions:
+      contents: read
+      packages: write
+    
+    env:
+      IMAGE_NAME: harshitrajsinha/backend
+      IMAGE_TAG: ${{ github.sha }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6.0.2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Docker Login
+        uses: docker/login-action@v4.2.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      ## Build docker image (only)
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v7.2.0
+        with:
+          context: .
+          file: Dockerfile
+          push: false
+          load: true
+          tags: ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
+      
+      ## Scan docker image using docker scout
+      - name: Docker Scout
+        uses: docker/scout-action@v1.21.0
+        with:
+          command: cves
+          image: ${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}
+          ignore-unchanged: true
+          only-severities: critical,high
+          write-comment: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          sarif-file: sarif.output.json
+          summary: true
+
+      ## upload artifact          
+      - name: Upload docker scout result Artifact
+        if: always() && github.ref == 'refs/heads/dev'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: docker-scout-report
+          path: sarif.output.json
