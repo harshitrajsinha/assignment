@@ -65,7 +65,7 @@ jobs:
   ############# Job: Unit Test #################
   unit-test:
     name: Backend Unit Test
-    needs: [security-scan]
+    needs: [security-check]
     runs-on: ubuntu-latest
 
     steps:
@@ -92,7 +92,7 @@ jobs:
   image-build:
     name: Backend Image Build
     runs-on: ubuntu-latest
-    needs: [security-scan]
+    needs: [security-check, unit-test]
 
     permissions:
       contents: read
