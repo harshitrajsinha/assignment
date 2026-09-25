@@ -1,8 +1,11 @@
 import os
 import httpx
 from fastapi import APIRouter, HTTPException, status
+from dotenv import load_dotenv
 
 from models.chat import ChatRequest, ChatResponse
+
+load_dotenv()
 
 router = APIRouter()
 
@@ -19,9 +22,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     try:
         # Prepare request payload for gateway
         gateway_request = {
-            "question": request.message
-            # "context": request.context,
-            # "session_id": request.session_id
+            "question": request.question
         }
         
         # Call LLM gateway
@@ -38,28 +39,29 @@ async def chat(request: ChatRequest) -> ChatResponse:
             # Map gateway response to our response model
             return ChatResponse(
                 response=gateway_data["answer"],
-                model_used=gateway_data["model_used"],
                 tokens_used=gateway_data.get("tokens_used"),
-                latency_ms=gateway_data.get("latency_ms")
             )
             
     except httpx.TimeoutException:
         raise HTTPException(
             status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-            detail="LLM gateway request timed out"
+            detail="We are experiencing high requests. Try again after sometime"
         )
     except httpx.HTTPStatusError as e:
+        print("LLM gateway error:", e.response.text)
         raise HTTPException(
             status_code=e.response.status_code,
-            detail=f"LLM gateway error: {e.response.text}"
+            detail="Could not resolve request right now, try again after some time"
         )
     except httpx.RequestError as e:
+        print(f"Failed to connect to LLM gateway: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Failed to connect to LLM gateway: {str(e)}"
+            detail="Could not resolve request right now, try again after some time"
         )
     except Exception as e:
+        print(f"Unexpected error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}"
+            detail="Internal Server Error. Please contact support team"
         )

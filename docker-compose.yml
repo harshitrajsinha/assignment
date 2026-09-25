@@ -14,8 +14,8 @@ services:
       DATABASE_PORT: ${DATABASE_PORT}
       DATABASE_DB: ${DATABASE_DB}
       DATABASE_PASS: ${DATABASE_PASS}
-      LLM_GATEWAY_URL: http://llm-gateway:8001
-      LLM_GATEWAY_TIMEOUT: 30
+      LLM_GATEWAY_URL: ${LLM_GATEWAY_URL}
+      LLM_GATEWAY_TIMEOUT: ${LLM_GATEWAY_TIMEOUT}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
       interval: 30s
@@ -25,27 +25,25 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      llm-gateway:
+      llmgen:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - assignment-qna
 
-  llm-gateway:
+
+  llmgen:
     build:
       context: ./generation
       dockerfile: Dockerfile
-    container_name: llm-gateway
+    container_name: llmgen
     ports:
       - "8001:8001"
     environment:
       ENVIRONMENT: ${ENVIRONMENT}
       LLM_PROVIDER: ${LLM_PROVIDER}
       LLM_MODEL: ${LLM_MODEL}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LLM_TEMPERATURE: ${LLM_TEMPERATURE:-0.7}
-      LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-1000}
-      LLM_TIMEOUT: ${LLM_TIMEOUT:-30}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/v1/health')"]
       interval: 30s
@@ -55,7 +53,7 @@ services:
     restart: unless-stopped
     networks:
       - assignment-qna
-
+  
   db:
     image: postgres:16-alpine
     container_name: postgres-db

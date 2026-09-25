@@ -22,10 +22,9 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         provider = register.ProviderFactory.create_provider(LLM_PROVIDER)
         
         # Generate response
-        result = provider.generate(
-            prompt=request.question,
-            context=request.context,
-            session_id=request.session_id
+        result = await provider.generate(
+            prompt=request.question
+            # session_id=request.session_id
         )
         
         return GenerateResponse(**result)
@@ -51,6 +50,9 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         )
 
 
+#########  WORK IN PROGRESS ########
+
+
 @router.post("/generate/stream")
 async def generate(request: GenerateRequest):
     """
@@ -62,20 +64,14 @@ async def generate(request: GenerateRequest):
         provider = register.ProviderFactory.create_provider(LLM_PROVIDER)
 
         
-        def stream_response():
-            for chunk in provider.generate_stream(
-                prompt=request.question,
-                context=request.context,
-                session_id=request.session_id
-            ):  
-                # print(json.dumps(chunk))
-                yield json.dumps(chunk)
+        async for chunk in provider.generate_stream(
+            prompt=request.question,
+            context=request.context,
+            session_id=request.session_id
+        ):  
+            print(json.dumps(chunk) + "\n")
+            # yield json.dumps(chunk) + "\n"
 
-
-        return StreamingResponse(
-            stream_response(),
-            media_type="application/x-ndjson"
-        )
         
     except ValueError as e:
         # Configuration errors
