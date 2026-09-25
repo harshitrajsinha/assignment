@@ -9,7 +9,7 @@ class LoginRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def validate_password(cls, value: str) -> str:
-        if not 8 <= len(value) <= 12:
+        if not 8 <= len(value) <= 20:
             raise ValueError("Password must be between 8-12 chars")
 
         if not any(char.isdigit() for char in value):
@@ -24,3 +24,4 @@ class LoginRequest(BaseModel):
 # Response will be received back to user in this form
 class LoginResponse(BaseModel):
     authenticated: bool
+    access_token: str

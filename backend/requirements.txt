@@ -8,3 +8,6 @@ email-validator
 python-dotenv
 psycopg[binary]
 httpx
+python-jose[cryptography]
+pytest
+pytest-asyncio
