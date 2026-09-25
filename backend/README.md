@@ -1,9 +1,9 @@
 # Backend Microservice
 This service acts as an API gateway, handling user authentication via `/auth/login`, request routing to upstream LLM services via `/chat`, and monitoring via `/metrics` endpoints.
 
-## Setup (via Docker)
+## Setup Instructions (via Docker)
 
-1. Create `.env` file in backend by referring to `.env.example`
+1. Create `.env` file in backend directory by referring to `.env.example`
 
 2. Ensure `Database` and `Generation` service are up and running
 
