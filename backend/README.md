@@ -100,7 +100,7 @@ Authenticate user and receive JWT token.
 ```json
 {
   "authenticated": true,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  // authentication token will also be returned, removing from README to avoid gitleaks false positive detection
 }
 ```
 <hr>
