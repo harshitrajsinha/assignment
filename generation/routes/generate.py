@@ -2,12 +2,15 @@ from fastapi import APIRouter, HTTPException, status
 
 from models.requests import GenerateRequest, GenerateResponse
 from services.providers import register
+import logging
 import os
 from dotenv import load_dotenv
 from fastapi.responses import StreamingResponse
 import json
 
 load_dotenv()
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 
@@ -30,20 +33,32 @@ async def generate(request: GenerateRequest) -> GenerateResponse:
         return GenerateResponse(**result)
         
     except ValueError as e:
-        # Configuration errors
+        logger.error(
+            "LLM provider configuration error: provider=%s and error=%s",
+            LLM_PROVIDER, str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Configuration error: {str(e)}"
         )
+    
     except RuntimeError as e:
         # Provider errors
         # print(f"LLM provider error: {str(e)}")
+        logger.error(
+            "LLM provider failed: provider=%s, error =%s",
+            LLM_PROVIDER, str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"LLM provider error: {str(e)}"
         )
+    
     except Exception as e:
-        # Unexpected errors
+        logger.error(
+            "Unexpected error during LLM generation: provider=%s, error =%s",
+            LLM_PROVIDER, str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Unexpected error: {str(e)}"

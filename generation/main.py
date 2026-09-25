@@ -8,6 +8,9 @@ from fastapi import FastAPI, Request, Response
 from routes import health, generate
 from middleware.metrics import latency_store
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 load_dotenv()
 
 IS_PROD = os.getenv("ENVIRONMENT") == "production"
@@ -21,6 +24,20 @@ app = FastAPI(
     openapi_url=None if IS_PROD else "/openapi.json",
 )
 
+# Custom log structure
+logging.basicConfig(
+    filename="generation.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Log rotation strategy
+handler = RotatingFileHandler(
+    "app.log",
+    maxBytes=10_000_000, # 10MB
+    backupCount=5
+)
 
 @app.middleware("http")
 async def capture_latency(request: Request, call_next) -> Response:
