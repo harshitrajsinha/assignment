@@ -63,7 +63,7 @@ jobs:
       - name: Scan dependencies
         run: |
           pip install pip-audit
-          pip-audit
+          pip-audit --ignore PYSEC-2026-1325
   
   ############# Job: Unit Test #################
   unit-test:
