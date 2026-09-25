@@ -10,6 +10,9 @@ from routes import auth, chat, health, metrics
 from services.database import close_db, create_tables
 from services.metrics import latency_store
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 load_dotenv()
 
 # for environment based configuration
@@ -31,6 +34,22 @@ app = FastAPI(
     redoc_url=None if IS_PROD else "/redoc",
     openapi_url=None if IS_PROD else "/openapi.json",
     lifespan=lifespan
+)
+
+
+# Custom log structure
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Log rotation strategy
+handler = RotatingFileHandler(
+    "app.log",
+    maxBytes=10_000_000, # 10MB
+    backupCount=5
 )
 
 

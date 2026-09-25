@@ -2,8 +2,10 @@ from sqlmodel import  SQLModel, create_engine, Session
 from dotenv import load_dotenv
 import os
 from scripts.seed_users import seed_users
+import logging
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 DATABASE_USER = os.getenv("DATABASE_USER")
 DATABASE_HOST = os.getenv("DATABASE_HOST")
@@ -28,7 +30,11 @@ def create_tables() -> None:
     with Session(engine) as session:
         seed_users(session)
 
+    logger.info("Database initialization completed successfully")
+
 
 def close_db() -> None:
     """Dispose database connection pool."""
     engine.dispose()
+
+    logger.info("Database connection pool disposed successfully")
