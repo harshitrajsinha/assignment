@@ -2,10 +2,11 @@ import os
 import logging
 
 import httpx
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from dotenv import load_dotenv
 
 from models.chat import ChatRequest, ChatResponse
+from middleware.auth import get_current_user
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ GATEWAY_TIMEOUT = int(os.getenv("LLM_GATEWAY_TIMEOUT"))
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
+async def chat(request: ChatRequest, current_user: dict = Depends(get_current_user)) -> ChatResponse:
     """
     Chat endpoint that forwards requests to the LLM gateway.
     """
