@@ -1,9 +1,13 @@
 import pytest
 from pydantic import ValidationError
+import os
 
 from models.login import LoginRequest
 from models.users import UserRole
 from fastapi import HTTPException
+
+# Set environment variables before importing modules that depend on them
+os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-testing"
 
 # Login Password validation
 class TestPasswordValidation:
