@@ -100,7 +100,7 @@ Authenticate user and receive JWT token.
 ```json
 {
   "authenticated": true,
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 <hr>
