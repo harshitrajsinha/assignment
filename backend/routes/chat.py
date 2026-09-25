@@ -21,11 +21,11 @@ GATEWAY_TIMEOUT = int(os.getenv("LLM_GATEWAY_TIMEOUT"))
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest, current_user: dict = Depends(get_current_user)) -> ChatResponse:
     """
-    Chat endpoint that forwards requests to the LLM gateway.
+    Chat endpoint forwards requests to the LLM gateway and return LLM generated answer to user.
     """
     try:
-        # Prepare request payload for gateway
-        gateway_request = {
+        # Request payload
+        payload = {
             "question": request.question
         }
         
@@ -33,22 +33,21 @@ async def chat(request: ChatRequest, current_user: dict = Depends(get_current_us
         async with httpx.AsyncClient(timeout=GATEWAY_TIMEOUT) as client:
             response = await client.post(
                 f"{GATEWAY_URL}/api/v1/generate",
-                json=gateway_request
+                json=payload
             )
             response.raise_for_status()
             
-            # Parse gateway response
-            gateway_data = response.json()
+            # Parse response
+            data = response.json()
 
             logger.info(
                 "LLM gateway response received with status code: status_code=%s",
                 response.status_code,
             )
             
-            # Map gateway response to our response model
             return ChatResponse(
-                response=gateway_data["answer"],
-                tokens_used=gateway_data.get("tokens_used"),
+                response=data["answer"],
+                tokens_used=data.get("tokens_used"),
             )
             
     except httpx.TimeoutException:
