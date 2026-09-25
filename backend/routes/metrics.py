@@ -6,10 +6,10 @@ from middleware.auth import require_admin
 
 router = APIRouter()
 
-
+# Authenticated for Admin only using dependency
 @router.get("/metrics", response_model=MetricsResponse)
-async def metrics(current_user: dict = Depends(require_admin)) -> MetricsResponse:
+async def metrics(admin_user: dict = Depends(require_admin)) -> MetricsResponse:
     """
     Returns the recorded metrics
     """
-    return MetricsResponse(routes=latency_store.snapshot())
+    return MetricsResponse(routes=latency_store.get_metrics())

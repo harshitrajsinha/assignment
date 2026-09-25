@@ -14,7 +14,7 @@ class LatencyStore:
             for path in TRACKED_PATHS
         }
     
-    def record(self, path: str, started_at: float, status_code: int) -> None:
+    def record_metrics(self, path: str, started_at: float, status_code: int) -> None:
         """Record request metrics for a given path."""
         if path not in self._routes:
             return
@@ -27,7 +27,7 @@ class LatencyStore:
             if status_code >= 400:
                 metrics["errors"] += 1
 
-    def snapshot(self) -> dict[str, dict[str, int | float]]:
+    def get_metrics(self) -> dict[str, dict[str, int | float]]:
         """Get current metrics snapshot."""
         with self._lock:
             return {

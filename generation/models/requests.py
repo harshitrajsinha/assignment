@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any
 
 class GenerateRequest(BaseModel):
     """Request model for LLM generation endpoint."""
-    question: str = Field(min_length=1, max_length=10_000)
+    question: str = Field(min_length=1, max_length=10_000, example="What does Elicius Energy, which is based out of Chennai, do?")
     # session_id: Optional[str]  = Field(default=None)
 
 

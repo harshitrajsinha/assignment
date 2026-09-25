@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine3.24
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Create non-root user
-RUN useradd -m -u 1000 appuser
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Copy application code
 COPY --chown=appuser:appuser . .

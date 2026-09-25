@@ -2,8 +2,8 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 # User is expected to pass request in this form
 class LoginRequest(BaseModel):
-    email: EmailStr = Field(max_length=50)
-    password: str
+    email: EmailStr = Field(max_length=50, example="admin@eliciusenergy.com")
+    password: str = Field(example="Admin@elicius1")
 
     # password must be between 8-12 chars, have one atleast one digit and one special char
     @field_validator("password")

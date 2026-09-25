@@ -1,24 +1,16 @@
-import os
 import pytest
-from datetime import timedelta
-from jose import jwt
 from pydantic import ValidationError
 
-# Set environment variables before importing modules that depend on them
-os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-testing"
-
-from services.auth import create_access_token
 from models.login import LoginRequest
 from models.users import UserRole
-from middleware.auth import require_admin
 from fastapi import HTTPException
 
-
+# Login Password validation
 class TestPasswordValidation:
     """Test password validation in LoginRequest"""
     
-    def test_valid_password_meets_requirements(self):
-        """Test that valid password meets all requirements"""
+    def test_valid_password(self):
+        """Test that valid password"""
         valid_passwords = [
             "password1!",  # 8 chars, has digit, has special char
             "Password123!",  # longer password with uppercase
@@ -32,7 +24,7 @@ class TestPasswordValidation:
             )
             assert request.password == password
     
-    def test_password_too_short_fails_validation(self):
+    def test_password_too_short(self):
         """Test that password shorter than 8 chars fails validation"""
         short_passwords = [
             "pass1!",  # 6 chars
@@ -48,8 +40,8 @@ class TestPasswordValidation:
                 )
             assert "Password must be between 8-12 chars" in str(exc_info.value)
     
-    def test_password_without_digit_fails_validation(self):
-        """Test that password without digit fails validation"""
+    def test_password_without_digit(self):
+        """Test that password without digit"""
         passwords_without_digit = [
             "password!",  # no digit
             "Test!@#$%",  # no digit, but long enough
@@ -63,8 +55,8 @@ class TestPasswordValidation:
                 )
             assert "Password must contain at least one digit" in str(exc_info.value)
     
-    def test_password_without_special_char_fails_validation(self):
-        """Test that password without special character fails validation"""
+    def test_password_without_special_char(self):
+        """Test that password without special character"""
         passwords_without_special = [
             "password1",  # no special char
             "Test12345",  # no special char
@@ -78,11 +70,11 @@ class TestPasswordValidation:
                 )
             assert "Password must contain at least one special character" in str(exc_info.value)
 
-
-class TestAdminRoleRequirement:
+# User role validation
+class TestAdminRole:
     """Test admin role requirement in authentication middleware"""
     
-    def test_admin_user_passes_require_admin_check(self):
+    def test_admin_user(self):
         """Test that admin user passes require_admin check"""
         admin_user = {
             "user_id": "12345",
@@ -97,7 +89,7 @@ class TestAdminRoleRequirement:
         assert result == admin_user
         assert result["role"] == UserRole.ADMIN.value
     
-    def test_non_admin_user_raises_forbidden(self):
+    def test_non_admin_user(self):
         """Test that non-admin user raises 403 Forbidden"""
         regular_user = {
             "user_id": "12345",
