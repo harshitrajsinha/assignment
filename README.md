@@ -126,4 +126,6 @@ with their configured roles.
 
 ### Run application via docker compose
 
-```docker compose --build --env-file .env up```
+```docker compose --env-file .env build```
+```docker compose --env-file .env up```
+```docker compose --env-file .env down```
