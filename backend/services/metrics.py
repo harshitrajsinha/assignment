@@ -3,7 +3,7 @@ from time import perf_counter
 
 TRACKED_PATHS = ("/api/v1/chat", "/api/v1/auth/login")
 
-# using lock to avoid race condition
+# using lock to avoid race condition when multiple requests update metrics
 class LatencyStore:
     def __init__(self) -> None:
         self._lock = Lock()
@@ -12,7 +12,7 @@ class LatencyStore:
             for path in TRACKED_PATHS
         }
     
-    def record(self, path: str, started_at: float, status_code: int) -> None:
+    def record_metrics(self, path: str, started_at: float, status_code: int) -> None:
         if path not in self._routes:
             return
 
@@ -25,7 +25,7 @@ class LatencyStore:
                 metrics["errors"] += 1
 
     # Returns the recorded metrics
-    def snapshot(self) -> dict[str, dict[str, int | float]]:
+    def get_metrics(self) -> dict[str, dict[str, int | float]]:
         with self._lock:
             return {
                 path: {

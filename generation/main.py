@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # Log rotation strategy
 handler = RotatingFileHandler(
-    "app.log",
+    "generation.log",
     maxBytes=10_000_000, # 10MB
     backupCount=5
 )
@@ -48,10 +48,10 @@ async def capture_latency(request: Request, call_next) -> Response:
     try:
         response = await call_next(request)
     except Exception:
-        latency_store.record(request.url.path, started_at, 500)
+        latency_store.record_metrics(request.url.path, started_at, 500)
         raise
 
-    latency_store.record(request.url.path, started_at, response.status_code)
+    latency_store.record_metrics(request.url.path, started_at, response.status_code)
     return response
 
 
@@ -61,4 +61,4 @@ app.include_router(generate.router, prefix="/api/v1", tags=["generate"])
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=not IS_PROD, workers=2 if IS_PROD else 1)
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, workers=2 if IS_PROD else 1)
