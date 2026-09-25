@@ -1,13 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.metrics import MetricsResponse
 
 from services.metrics import latency_store
+from middleware.auth import require_admin
 
 router = APIRouter()
 
 
 @router.get("/metrics", response_model=MetricsResponse)
-async def metrics() -> MetricsResponse:
+async def metrics(current_user: dict = Depends(require_admin)) -> MetricsResponse:
     """
     Returns the recorded metrics
     """

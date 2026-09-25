@@ -7,6 +7,7 @@ from sqlmodel import select
 from sqlmodel import Session
 
 from services.database import get_session
+from services.auth import create_access_token
 from models.users import User
 
 router = APIRouter(prefix="/auth")
@@ -35,5 +36,17 @@ def login(payload: LoginRequest, session: Session = Depends(get_session)) -> Log
             detail="Invalid email or password",
         )
 
-    response = LoginResponse(authenticated=True)
+    # Create JWT token with user claims
+    access_token = create_access_token(
+        data={
+            "sub": str(user.id),
+            "email": user.email,
+            "role": user.role.value
+        }
+    )
+
+    response = LoginResponse(
+        authenticated=True,
+        access_token=access_token
+    )
     return response
