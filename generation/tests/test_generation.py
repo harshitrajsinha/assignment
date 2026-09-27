@@ -14,7 +14,7 @@ from routes.health import router as health_router
 class TestGenerateRequestValidation:
     """Test GenerateRequest validation"""
     
-    def test_valid_question_meets_requirements(self):
+    def test_valid_question(self):
         """Test that valid question meets requirements"""
         valid_questions = [
             "What is 2 + 2?",  # short valid question
@@ -26,14 +26,14 @@ class TestGenerateRequestValidation:
             request = GenerateRequest(question=question)
             assert request.question == question
     
-    def test_empty_question_fails_validation(self):
+    def test_empty_question(self):
         """Test that empty question fails validation"""
         with pytest.raises(ValidationError) as exc_info:
             GenerateRequest(question="")
         
         assert "at least 1 character" in str(exc_info.value).lower()
     
-    def test_question_too_long_fails_validation(self):
+    def test_question(self):
         """Test that question exceeding max length fails validation"""
         too_long_question = "A" * 10001  # exceeds 10,000 char limit
         

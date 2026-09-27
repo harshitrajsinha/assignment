@@ -1,8 +1,12 @@
-dockerfile
+Dockerfile
 .env
-.venv/
-venv/
-__pycache__/**
+.env.example
+*.log
+logs/
+README.md
+venv
+__pycache__
+.pytest_cache
 .env.example
 .git
 .gitignore

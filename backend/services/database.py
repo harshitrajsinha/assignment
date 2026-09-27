@@ -12,10 +12,11 @@ DATABASE_HOST = os.getenv("DATABASE_HOST")
 DATABASE_PORT = os.getenv("DATABASE_PORT")
 DATABASE_DB = os.getenv("DATABASE_DB")
 DATABASE_PASS = os.getenv("DATABASE_PASS")
+IS_PROD = os.getenv("ENVIRONMENT") == "production"
 
 DATABASE_URL = f"postgresql+psycopg://{DATABASE_USER}:{DATABASE_PASS}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_DB}"
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False if IS_PROD else True)
 
 def get_session():
     """Provide a database session per request."""

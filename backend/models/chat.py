@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
+from typing import Optional
 
 
 class ChatRequest(BaseModel):
     """Request model for chat endpoint."""
-    question: str = Field(min_length=1, max_length=10_000, description="The user's message")
+    question: str = Field(min_length=1, max_length=10_000, example="What is today's date and time?")
 
 # generate random session id and maintain session for the user (need to figure out)
 

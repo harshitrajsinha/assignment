@@ -1,3 +1,5 @@
+import sys
+
 import uvicorn
 from contextlib import asynccontextmanager
 from time import perf_counter
@@ -11,18 +13,32 @@ from services.database import close_db, create_tables
 from services.metrics import latency_store
 
 import logging
-from logging.handlers import RotatingFileHandler
+# from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 
 # for environment based configuration
 IS_PROD=os.getenv("ENVIRONMENT") == "production"
 
+# Custom log structure
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Log rotation strategy
+# handler = RotatingFileHandler(
+#     "app.log",
+#     maxBytes=10_000_000, # 10MB
+#     backupCount=5
+# )
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     create_tables()
-    print("Database tables created and seed data is also loaded")
+    logger.info("Database tables created and seed data is also loaded")
     yield
     close_db()
 
@@ -36,23 +52,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-
-# Custom log structure
-logging.basicConfig(
-    filename="app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-# Log rotation strategy
-handler = RotatingFileHandler(
-    "app.log",
-    maxBytes=10_000_000, # 10MB
-    backupCount=5
-)
-
-
+# Middleware to capture latency of request-response cycle
 @app.middleware("http")
 async def capture_latency(request: Request, call_next) -> Response:
     """
@@ -62,10 +62,10 @@ async def capture_latency(request: Request, call_next) -> Response:
     try:
         response = await call_next(request)
     except Exception:
-        latency_store.record(request.url.path, started_at, 500)
+        latency_store.record_metrics(request.url.path, started_at, 500)
         raise
 
-    latency_store.record(request.url.path, started_at, response.status_code)
+    latency_store.record_metrics(request.url.path, started_at, response.status_code)
     return response
 
 
@@ -75,4 +75,4 @@ app.include_router(chat.router, prefix="/api/v1",  tags=["chat"])
 app.include_router(auth.router, prefix="/api/v1", tags=["authentication"])
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False if IS_PROD else True, workers=2 if IS_PROD else 1)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=2 if IS_PROD else 1)
