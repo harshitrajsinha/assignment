@@ -1,3 +1,5 @@
+import sys
+
 import uvicorn
 from contextlib import asynccontextmanager
 from time import perf_counter
@@ -11,7 +13,7 @@ from services.database import close_db, create_tables
 from services.metrics import latency_store
 
 import logging
-from logging.handlers import RotatingFileHandler
+# from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 
@@ -20,18 +22,18 @@ IS_PROD=os.getenv("ENVIRONMENT") == "production"
 
 # Custom log structure
 logging.basicConfig(
-    filename="app.log",
+    stream=sys.stdout,
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Log rotation strategy
-handler = RotatingFileHandler(
-    "app.log",
-    maxBytes=10_000_000, # 10MB
-    backupCount=5
-)
+# handler = RotatingFileHandler(
+#     "app.log",
+#     maxBytes=10_000_000, # 10MB
+#     backupCount=5
+# )
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):

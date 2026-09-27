@@ -1,5 +1,6 @@
 import uvicorn
 import os
+import sys
 from time import perf_counter
 from dotenv import load_dotenv
 
@@ -9,7 +10,6 @@ from routes import health, generate
 from middleware.metrics import latency_store
 
 import logging
-from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 
@@ -26,18 +26,18 @@ app = FastAPI(
 
 # Custom log structure
 logging.basicConfig(
-    filename="generation.log",
+    stream=sys.stdout,
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
-# Log rotation strategy
-handler = RotatingFileHandler(
-    "generation.log",
-    maxBytes=10_000_000, # 10MB
-    backupCount=5
-)
+# # Log rotation strategy
+# handler = RotatingFileHandler(
+#     "generation.log",
+#     maxBytes=10_000_000, # 10MB
+#     backupCount=5
+# )
 
 @app.middleware("http")
 async def capture_latency(request: Request, call_next) -> Response:
