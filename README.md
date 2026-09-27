@@ -166,6 +166,14 @@ Auth endpoint
 
 ![Auth endpoint result](./public/auth-endpoint-result.png)
 
+Generate endpoint
+
+![Generate endpoint result](./public/generate-endpoint.png)
+
+Admin access required
+
+![Admin access required](./public/admin-auth.png)
+
 CICD
 
 ![CICD](./public/ci-cd.png)
