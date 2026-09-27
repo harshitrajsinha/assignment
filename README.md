@@ -1,3 +1,5 @@
+[Video Explaination](https://youtu.be/cI5E9cI-Q2s)
+
 This project follows single server monolithic architecture containing 3 services -
 1. `Backend`: QnA API service that authenticate users and exposes `/chat` endpoint.
 Refer: [Backend Service](./backend/README.md)
